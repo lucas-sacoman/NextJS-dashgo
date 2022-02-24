@@ -73,17 +73,18 @@ const Dashboard = () => {
 					minChildWidth="320px"
 					alignItems="flex-start"
 				>
-					<Box h="100%" p="8" bg="gray.800" rounded={8} pb="4">
+					<Box h="100%" p={["6", "8"]} bg="gray.800" rounded={8} pb="4">
 						<Text fontSize="lg" mb="4">
 							Inscritos da semana
 						</Text>
 						<Chart options={options} series={series} type="area" height={160} />
 					</Box>
 
-					<Box h="100%" p="8" bg="gray.800" rounded={8} pb="4">
+					<Box h="100%" p={["6", "8"]} bg="gray.800" rounded={8} pb="4">
 						<Text fontSize="lg" mb="4">
 							Taxa de abertura
 						</Text>
+						<Chart options={options} series={series} type="area" height={160} />
 					</Box>
 				</SimpleGrid>
 			</Flex>
