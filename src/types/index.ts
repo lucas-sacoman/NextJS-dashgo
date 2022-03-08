@@ -9,3 +9,10 @@ export type CreateUserData = {
 	password: string;
 	password_confirmation: string;
 };
+
+export type User = {
+	id: number;
+	name: string;
+	email: string;
+	createdAt: string;
+};
