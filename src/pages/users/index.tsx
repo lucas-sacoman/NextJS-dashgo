@@ -5,6 +5,7 @@ import {
 	Flex,
 	Heading,
 	Icon,
+	Link,
 	Spinner,
 	Stack,
 	Table,
@@ -16,17 +17,33 @@ import {
 	Tr,
 	useBreakpointValue,
 } from '@chakra-ui/react';
-import Link from 'next/link';
+import NextLink from 'next/link';
+import { useState } from 'react';
 import { RiAddLine, RiErrorWarningLine, RiPencilLine } from 'react-icons/ri';
 import { Header } from '../../components/Header';
 import { Pagination } from '../../components/Pagination';
 import { Sidebar } from '../../components/Sidebar.tsx';
 import { useUsers } from '../../hooks/useUsers';
+import { api } from '../../services/api';
+import { queryClient } from '../../services/queryClient';
 
 const UserList = () => {
-	const { isLoading, error, data, isFetching } = useUsers();
+	const [page, setPage] = useState(1);
+	const { isLoading, error, data, isFetching } = useUsers(page);
 
 	const isWideVersion = useBreakpointValue({ base: false, lg: true });
+
+	const handlePrefetchUser = async (userId: number) => {
+		await queryClient.prefetchQuery(
+			['user', userId],
+			async () => {
+				const response = await api.get(`users/${userId}`);
+
+				return response.data;
+			},
+			{ staleTime: 1000 * 60 * 10 /* 10 minutes */ }
+		);
+	};
 
 	return (
 		<Box>
@@ -42,7 +59,7 @@ const UserList = () => {
 							{!isLoading && isFetching && <Spinner size="sm" ml="4" />}
 						</Heading>
 
-						<Link href="/users/create" passHref>
+						<NextLink href="/users/create" passHref>
 							<Button
 								as="a"
 								size="sm"
@@ -52,7 +69,7 @@ const UserList = () => {
 							>
 								Criar novo
 							</Button>
-						</Link>
+						</NextLink>
 					</Flex>
 
 					{isLoading ? (
@@ -83,14 +100,19 @@ const UserList = () => {
 									</Tr>
 								</Thead>
 								<Tbody>
-									{data!.map((user) => (
+									{data.users!.map((user) => (
 										<Tr key={user.id}>
 											<Td px={['0', '0', '8']}>
 												<Checkbox colorScheme="pink" />
 											</Td>
 											<Td>
 												<Box>
-													<Text fontWeight="bold">{user.name}</Text>
+													<Link
+														color="purple.400"
+														onMouseEnter={() => handlePrefetchUser(user.id)}
+													>
+														<Text fontWeight="bold">{user.name}</Text>
+													</Link>
 													<Text fontSize="sm" color="gray.400">
 														{user.email}
 													</Text>
@@ -115,7 +137,11 @@ const UserList = () => {
 								</Tbody>
 							</Table>
 
-							<Pagination />
+							<Pagination
+								totalCountOfRegisters={data.totalCount}
+								currentPage={page}
+								onPageChange={setPage}
+							/>
 						</>
 					)}
 				</Box>
